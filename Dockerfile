@@ -1,19 +1,21 @@
-FROM python:3.10.8-slim-buster
+FROM python:3.10-slim
 
-# Avoid upgrade in slim images, install only required packages
+# Avoid prompts and ensure compatibility
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install system dependencies
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-    git gcc g++ libffi-dev libssl-dev curl && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    git build-essential libffi-dev libssl-dev curl ca-certificates && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Use a clean path for dependencies
+# Install Python dependencies
 COPY requirements.txt /tmp/requirements.txt
-RUN pip install --upgrade pip && pip install -r /tmp/requirements.txt
+RUN pip install --upgrade pip && pip install --no-cache-dir -r /tmp/requirements.txt
 
-# Set up app directory
+# Setup working directory and copy project
 WORKDIR /VJ-Forward-Bot
 COPY . .
 
-# Start the bot
+# Start your app and bot
 CMD ["sh", "-c", "gunicorn app:app & python3 main.py"]
