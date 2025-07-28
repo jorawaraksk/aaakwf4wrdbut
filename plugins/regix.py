@@ -161,7 +161,7 @@ async def pub_(bot, message):
                       MSG = []
                 else:
                    new_caption = custom_caption(message, caption)
-                   if message.photo and datas['filters'].get("photo"):
+                   if message.photo and "photo" in datas['filters']:
                        new_caption = None
 
                    details = {"msg_id": message.id, "media": media(message), "caption": new_caption, 'button': button, "protect": protect}
