@@ -189,29 +189,49 @@ async def pub_(bot, message):
 # Ask Doubt on telegram @KingVJ01
 
 async def copy(user, bot, msg, m, sts):
-   try:                               
-     if msg.get("media"):
-        await bot.send_cached_media(
-              chat_id=sts.get('TO'),
-              file_id=msg.get("media"),
-              caption=msg.get("caption"),
-              reply_markup=msg.get('button'),
-              protect_content=msg.get("protect"))
-     else:
-        await bot.copy_message(
-              chat_id=sts.get('TO'),
-              from_chat_id=sts.get('FROM'),    
-              caption=msg.get("caption"),
-              message_id=msg.get("msg_id"),
-              reply_markup=msg.get('button'),
-              protect_content=msg.get("protect"))
-   except FloodWait as e:
-     await edit(user, m, 'ᴘʀᴏɢʀᴇssɪɴɢ', e.value, sts)
-     await asyncio.sleep(e.value)
-     await edit(user, m, 'ᴘʀᴏɢʀᴇssɪɴɢ', 5, sts)
-     await copy(user, bot, msg, m, sts)
-   except Exception as e:
-     print(e)
+    try:
+        from_chat = msg.get("chat_id")
+        msg_id = msg.get("id")
+        media = msg.get("media")
+        caption = msg.get("caption")
+        buttons = msg.get("buttons")  # existing buttons if any
+
+        reply_markup = None
+
+        # 🧠 Create link to original message
+        if str(from_chat).startswith("-100"):
+            source_link = f"https://t.me/c/{str(from_chat)[4:]}/{msg_id}"
+        else:
+            source_link = f"https://t.me/{msg.get('username')}/{msg_id}"
+
+        config = await get_configs(user)
+        show_source = config.get("source_button")  # ✅ fetch setting from db
+
+        if show_source:
+            source_btn = InlineKeyboardButton("🔗 Source", url=source_link)
+            if buttons:
+                reply_markup = InlineKeyboardMarkup(buttons + [[source_btn]])
+            else:
+                reply_markup = InlineKeyboardMarkup([[source_btn]])
+        elif buttons:
+            reply_markup = InlineKeyboardMarkup(buttons)
+
+        if media:
+            await bot.send_cached_media(
+                chat_id=sts.get("TO"),
+                file_id=media,
+                caption=caption,
+                reply_markup=reply_markup
+            )
+        elif caption:
+            await bot.send_message(
+                chat_id=sts.get("TO"),
+                text=caption,
+                reply_markup=reply_markup
+            )
+
+    except Exception as e:
+        print(f"Error in copy(): {e}")
      sts.add('deleted')
 
 # Don't Remove Credit Tg - @VJ_Botz
