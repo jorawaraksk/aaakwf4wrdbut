@@ -161,6 +161,9 @@ async def pub_(bot, message):
                       MSG = []
                 else:
                    new_caption = custom_caption(message, caption)
+                   if message.photo and filter.get("photo"):
+                       new_caption = None
+
                    details = {"msg_id": message.id, "media": media(message), "caption": new_caption, 'button': button, "protect": protect}
                    await copy(user, client, details, m, sts)
                    sts.add('total_files')
