@@ -190,7 +190,7 @@ async def pub_(bot, message):
 
 async def copy(user, bot, msg, m, sts):
    try:                               
-     if msg.get("media") and msg.get("caption"):
+     if msg.get("media"):
         await bot.send_cached_media(
               chat_id=sts.get('TO'),
               file_id=msg.get("media"),
