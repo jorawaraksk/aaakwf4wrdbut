@@ -40,6 +40,14 @@ async def settings_query(bot, query):
        await query.message.edit_text(
          "<b>Hᴇʀᴇ Is Tʜᴇ Exᴛʀᴀ Sᴇᴛᴛɪɴɢs Pᴀɴᴇʟ⚙</b>",
          reply_markup=extra_buttons())
+  elif type == "sourcebutton":
+     config = await get_configs(user_id)
+     status = config.get("source_button", True)
+     new_status = not status
+     await update_configs(user_id, "source_button", new_status)
+     await query.message.edit_text(
+        f"<b>🔗 Source button is now {'Enabled ✅' if new_status else 'Disabled ❌'}</b>",
+        reply_markup=main_buttons())
   elif type=="bots":
      buttons = [] 
      _bot = await db.get_bot(user_id)
@@ -504,6 +512,9 @@ def main_buttons():
        InlineKeyboardButton('🗃 MᴏɴɢᴏDB',
                     callback_data=f'settings#database')
        ],[
+       InlineKeyboardButton('🔗 Source Button',
+                    callback_data=f'settings#sourcebutton')
+       ],[
        InlineKeyboardButton('Exᴛʀᴀ Sᴇᴛᴛɪɴɢs 🧪',
                     callback_data=f'settings#extra')
        ],[
@@ -511,7 +522,6 @@ def main_buttons():
                     callback_data=f'help')
        ]]
   return InlineKeyboardMarkup(buttons)
-
 # Don't Remove Credit Tg - @VJ_Botz
 # Subscribe YouTube Channel For Amazing Bot https://youtube.com/@Tech_VJ
 # Ask Doubt on telegram @KingVJ01
