@@ -41,13 +41,19 @@ async def settings_query(bot, query):
          "<b>Hᴇʀᴇ Is Tʜᴇ Exᴛʀᴀ Sᴇᴛᴛɪɴɢs Pᴀɴᴇʟ⚙</b>",
          reply_markup=extra_buttons())
   elif type == "sourcebutton":
-     config = await get_configs(user_id)
-     status = config.get("source_button", True)
-     new_status = not status
-     await update_configs(user_id, "source_button", new_status)
-     await query.message.edit_text(
-        f"<b>🔗 Source button is now {'Enabled ✅' if new_status else 'Disabled ❌'}</b>",
-        reply_markup=main_buttons())
+    config = await get_configs(user_id)
+    current = config.get("source_button", True)
+    new_status = not current
+    await update_configs(user_id, "source_button", new_status)
+    msg_text = (
+        "<b>🔗 Source Button Toggled</b>\n\n"
+        f"Current Status: {'<code>Enabled ✅</code>' if new_status else '<code>Disabled ❌</code>'}"
+    )
+
+    await query.message.edit_text(
+        msg_text,
+        reply_markup=main_buttons()
+    )
   elif type=="bots":
      buttons = [] 
      _bot = await db.get_bot(user_id)
