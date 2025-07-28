@@ -229,10 +229,9 @@ async def copy(user, bot, msg, m, sts):
                 text=caption,
                 reply_markup=reply_markup
             )
-
+     sts.add('deleted')
     except Exception as e:
         print(f"Error in copy(): {e}")
-     sts.add('deleted')
 
 # Don't Remove Credit Tg - @VJ_Botz
 # Subscribe YouTube Channel For Amazing Bot https://youtube.com/@Tech_VJ
