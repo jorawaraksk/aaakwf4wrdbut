@@ -54,19 +54,21 @@ async def run(bot, message):
         regex = re.compile("(https://)?(t\.me/|telegram\.me/|telegram\.dog/)(c/)?(\d+|[a-zA-Z_0-9]+)/(\d+)$")
         match = regex.match(fromid.text.replace("?single", ""))
         if not match:
-            return await message.reply('Invalid link')
-        chat_id = match.group(4)
-        last_msg_id = int(match.group(5))
-        if chat_id.isnumeric():
-            chat_id  = int(("-100" + chat_id))
-    elif fromid.forward_from_chat.type in [enums.ChatType.CHANNEL, 'supergroup']:
-        last_msg_id = fromid.forward_from_message_id
-        chat_id = fromid.forward_from_chat.username or fromid.forward_from_chat.id
-        if last_msg_id == None:
-           return await message.reply_text("**This may be a forwarded message from a group and sended by anonymous admin. instead of this please send last message link from group**")
-    else:
-        await message.reply_text("**invalid !**")
-        return 
+        return await message.reply('Invalid link')
+    chat_id = match.group(4)
+    last_msg_id = int(match.group(5))
+    if chat_id.isnumeric():
+        chat_id = int("-100" + chat_id)
+elif fromid.forward_origin and getattr(fromid.forward_origin.chat, 'type', None) in [enums.ChatType.CHANNEL, 'supergroup']:
+    origin = fromid.forward_origin
+    last_msg_id = origin.message_id
+    chat_obj = origin.chat
+    chat_id = chat_obj.username or chat_obj.id
+    if last_msg_id is None:
+        return await message.reply_text("**This may be a forwarded message from a group and sent by anonymous admin. Instead, please send the last message link from the group.**")
+else:
+    await message.reply_text("**Invalid!**")
+    return 
     try:
         title = (await bot.get_chat(chat_id)).title
   #  except ChannelInvalid:
