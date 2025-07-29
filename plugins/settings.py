@@ -113,12 +113,13 @@ async def settings_query(bot, query):
         return await chat_ids.reply_text(
                   "<b>process canceled</b>",
                   reply_markup=InlineKeyboardMarkup(buttons))
-     elif not chat_ids.forward_date:
+     elif not chat_ids.forward_origin.date:
         return await chat_ids.reply("**This is not a forward message**")
      else:
-        chat_id = chat_ids.forward_from_chat.id
-        title = chat_ids.forward_from_chat.title
-        username = chat_ids.forward_from_chat.username
+        chat_obj = chat_ids.forward_from_origin.chat
+        chat_id = chat_obj.id
+        title = chat_obj.title
+        username = chat_obj.username
         username = "@" + username if username else "private"
      chat = await db.add_channel(user_id, chat_id, title, username)
      await query.message.reply_text(
