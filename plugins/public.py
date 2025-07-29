@@ -1,4 +1,14 @@
-import re import asyncio from .utils import STS from database import Db, db from config import temp from script import Script from pyrogram import Client, filters, enums from pyrogram.errors import FloodWait from pyrogram.errors.exceptions.not_acceptable_406 import ChannelPrivate as PrivateChat from pyrogram.errors.exceptions.bad_request_400 import ChannelInvalid, ChatAdminRequired, UsernameInvalid, UsernameNotModified, ChannelPrivate from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery, KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
+import re
+import asyncio
+from .utils import STS
+from database import Db, db
+from config import temp
+from script import Script
+from pyrogram import Client, filters, enums
+from pyrogram.errors import FloodWait
+from pyrogram.errors.exceptions.not_acceptable_406 import ChannelPrivate as PrivateChat
+from pyrogram.errors.exceptions.bad_request_400 import ChannelInvalid, ChatAdminRequired, UsernameInvalid, UsernameNotModified, ChannelPrivate
+from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery, KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
 
 @Client.on_message(filters.private & filters.command(["forward"])) async def run(bot, message): buttons = [] btn_data = {} user_id = message.from_user.id _bot = await db.get_bot(user_id) if not _bot: _bot = await db.get_userbot(user_id) if not _bot: return await message.reply("<code>You didn't added any bot. Please add a bot using /settings !</code>")
 
