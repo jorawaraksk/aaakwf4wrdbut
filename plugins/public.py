@@ -55,7 +55,7 @@ async def run(bot, message):
         return
 
     # Handle link input
-    if fromid.text and not fromid.forward_origin:
+    if fromid.text and not (fromid.forward_origin and fromid.forward_origin.date):
         regex = re.compile(r"(https://)?(t\.me/|telegram\.me/|telegram\.dog/)(c/)?(\d+|[a-zA-Z_0-9]+)/(\d+)$")
         match = regex.match(fromid.text.replace("?single", ""))
         if not match:
