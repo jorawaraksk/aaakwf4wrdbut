@@ -260,14 +260,12 @@ async def msg_edit(msg, text, button=None, wait=None):
     try:
         return await msg.edit(text, reply_markup=button)
     except MessageNotModified:
-        return  # ✅ silently skip if unchanged
+        # Avoid crashing if the content is the same
+        return
     except FloodWait as e:
         if wait:
             await asyncio.sleep(e.value)
             return await msg_edit(msg, text, button, wait)
-    except Exception as e:
-        print(f"[msg_edit error] {e}")
-        return
 # Don't Remove Credit Tg - @VJ_Botz
 # Subscribe YouTube Channel For Amazing Bot https://youtube.com/@Tech_VJ
 # Ask Doubt on telegram @KingVJ01
