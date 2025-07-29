@@ -7,12 +7,8 @@ from script import Script
 from pyrogram import Client, filters, enums
 from pyrogram.errors import FloodWait
 from pyrogram.errors.exceptions.not_acceptable_406 import ChannelPrivate as PrivateChat
-from pyrogram.errors.exceptions.bad_request_400 import (
-    ChannelInvalid, ChatAdminRequired, UsernameInvalid,
-    UsernameNotModified, ChannelPrivate
-)
-from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
-
+from pyrogram.errors.exceptions.bad_request_400 import ChannelInvalid, ChatAdminRequired, UsernameInvalid, UsernameNotModified, ChannelPrivate, MessageNotModified
+from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery, KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
 
 @Client.on_message(filters.private & filters.command(["forward"]))
 async def run(bot, message):
@@ -54,9 +50,8 @@ async def run(bot, message):
         await message.reply(Script.CANCEL)
         return
 
-    # Handle link input
-    if fromid.text and not (fromid.forward_origin and fromid.forward_origin.date):
-        regex = re.compile(r"(https://)?(t\.me/|telegram\.me/|telegram\.dog/)(c/)?(\d+|[a-zA-Z_0-9]+)/(\d+)$")
+    if fromid.text and (not fromid.forward_origin or not getattr(fromid.forward_origin, 'date', None)):
+        regex = re.compile(r"(https://)?(t\\.me/|telegram\\.me/|telegram\\.dog/)(c/)?(\\d+|[a-zA-Z_0-9]+)/(\\d+)$")
         match = regex.match(fromid.text.replace("?single", ""))
         if not match:
             return await message.reply('Invalid link')
@@ -70,16 +65,14 @@ async def run(bot, message):
         chat_obj = origin.chat
         chat_id = chat_obj.username or chat_obj.id
         if last_msg_id is None:
-            return await message.reply_text(
-                "**This may be a forwarded message from a group and sent by anonymous admin. Instead, please send the last message link from the group.**"
-            )
+            return await message.reply_text("**This may be a forwarded message from a group and sent by anonymous admin. Instead, please send the last message link from the group.**")
     else:
         return await message.reply_text("**Invalid!**")
 
     try:
         title = (await bot.get_chat(chat_id)).title
     except (PrivateChat, ChannelPrivate, ChannelInvalid):
-        title = "private" if fromid.text else fromid.forward_from_chat.title
+        title = "private"
     except (UsernameInvalid, UsernameNotModified):
         return await message.reply('Invalid Link specified.')
     except Exception as e:
@@ -91,22 +84,24 @@ async def run(bot, message):
         return
 
     forward_id = f"{user_id}-{skipno.id}"
-    confirm_buttons = [
-        [
-            InlineKeyboardButton('Yes', callback_data=f"start_public_{forward_id}"),
-            InlineKeyboardButton('No', callback_data="close_btn")
-        ]
-    ]
-    reply_markup = InlineKeyboardMarkup(confirm_buttons)
-    await message.reply_text(
-        text=Script.DOUBLE_CHECK.format(
-            botname=_bot['name'],
-            botuname=_bot['username'],
-            from_chat=title,
-            to_chat=to_title,
-            skip=skipno.text
-        ),
-        disable_web_page_preview=True,
-        reply_markup=reply_markup
-    )
+    buttons = [[
+        InlineKeyboardButton('Yes', callback_data=f"start_public_{forward_id}"),
+        InlineKeyboardButton('No', callback_data="close_btn")
+    ]]
+    reply_markup = InlineKeyboardMarkup(buttons)
+    try:
+        await message.reply_text(
+            text=Script.DOUBLE_CHECK.format(
+                botname=_bot['name'],
+                botuname=_bot['username'],
+                from_chat=title,
+                to_chat=to_title,
+                skip=skipno.text
+            ),
+            disable_web_page_preview=True,
+            reply_markup=reply_markup
+        )
+    except MessageNotModified:
+        pass
+
     STS(forward_id).store(chat_id, toid, int(skipno.text), int(last_msg_id))
