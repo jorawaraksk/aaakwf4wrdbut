@@ -90,9 +90,10 @@ async def unequify(client, message):
       last_msg_id = int(match.group(5))
       if chat_id.isnumeric():
          chat_id  = int(("-100" + chat_id))
-   elif target.forward_from_chat.type in [enums.ChatType.CHANNEL, 'supergroup']:
-        last_msg_id = target.forward_from_message_id
-        chat_id = target.forward_from_chat.username or target.forward_from_chat.id
+   elif target.forward_origin and getattr(target.forward_origin.chat, 'type', None) in [enums.ChatType.CHANNEL, 'supergroup']:
+    last_msg_id = target.forward_origin.message_id
+    chat_obj = target.forward_origin.chat
+    chat_id = chat_obj.username or chat_obj.id
    else:
         return await message.reply_text("**invalid !**")
    confirm = await client.ask(user_id, text="**send /yes to start the process and /no to cancel this process**")
